@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="English Quest">
+<title>English Quest</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --sky: #1a1a2e;
+    --deep: #16213e;
+    --mid: #0f3460;
+    --gold: #f5a623;
+    --gold2: #ffcf00;
+    --green: #00c896;
+    --red: #ff5252;
+    --purple: #a855f7;
+    --blue: #38bdf8;
+    --white: #f0f4ff;
+    --card: rgba(255,255,255,0.07);
+    --card-border: rgba(255,255,255,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--sky);
+    color: var(--white);
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Stars background */
+  .stars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: white;
+    animation: twinkle var(--d, 3s) infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.1; } to { opacity: 0.9; } }
+
+  #app {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── SCREENS ── */
+  .screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 20px 16px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .screen.active { display: flex; }
+
+  /* ── HOME ── */
+  #home {
+    justify-content: center;
+    gap: 0;
+  }
+
+  .logo-area {
+    text-align: center;
+    margin-bottom: 32px;
+    animation: floatIn 0.6s ease both;
+  }
+  .logo-icon { font-size: 64px; line-height: 1; margin-bottom: 8px; }
+  .logo-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 42px;
+    background: linear-gradient(135deg, var(--gold2), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 1px;
+  }
+  .logo-sub {
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 4px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .xp-bar-wrap {
+    width: 100%;
+    max-width: 340px;
+    margin-bottom: 28px;
+    animation: floatIn 0.6s 0.1s ease both;
+  }
+  .xp-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .xp-track {
+    height: 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .xp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold2));
+    border-radius: 99px;
+    transition: width 0.6s ease;
+  }
+
+  .menu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    width: 100%;
+    max-width: 380px;
+    animation: floatIn 0.6s 0.2s ease both;
+  }
+
+  .menu-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 20px 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
+    position: relative;
+    overflow: hidden;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .menu-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .menu-card.c1::before { background: linear-gradient(135deg, rgba(245,166,35,0.2), transparent); }
+  .menu-card.c2::before { background: linear-gradient(135deg, rgba(0,200,150,0.2), transparent); }
+  .menu-card.c3::before { background: linear-gradient(135deg, rgba(168,85,247,0.2), transparent); }
+  .menu-card.c4::before { background: linear-gradient(135deg, rgba(56,189,248,0.2), transparent); }
+  .menu-card:active { transform: scale(0.95); }
+  .menu-card:active::before { opacity: 1; }
+
+  .menu-emoji { font-size: 38px; line-height: 1; margin-bottom: 10px; }
+  .menu-name {
+    font-family: 'Fredoka One', cursive;
+    font-size: 15px;
+    line-height: 1.2;
+    color: var(--white);
+  }
+  .menu-badge {
+    position: absolute;
+    top: 10px; right: 10px;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 99px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-gold { background: var(--gold); color: #000; }
+  .badge-green { background: var(--green); color: #000; }
+  .badge-purple { background: var(--purple); color: #fff; }
+  .badge-blue { background: var(--blue); color: #000; }
+
+  /* ── HEADER (in-game) ── */
+  .game-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 420px;
+    margin-bottom: 20px;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .back-btn {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    width: 42px; height: 42px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.15s;
+  }
+  .back-btn:active { transform: scale(0.9); }
+  .game-title-wrap { flex: 1; }
+  .game-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 20px;
+    line-height: 1;
+  }
+  .game-streak {
+    font-size: 12px;
+    color: var(--gold);
+    font-weight: 700;
+    margin-top: 2px;
+  }
+  .score-pill {
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    color: #000;
+    font-weight: 800;
+    font-size: 14px;
+    padding: 6px 14px;
+    border-radius: 99px;
+    flex-shrink: 0;
+  }
+
+  /* ── GAME CARD ── */
+  .game-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 28px 22px;
+    width: 100%;
+    max-width: 420px;
+    flex-shrink: 0;
+  }
+
+  /* ── GAME 1: WORD BLASTER ── */
+  #game1 { justify-content: flex-start; }
+  .word-display {
+    font-family: 'Fredoka One', cursive;
+    font-size: 56px;
+    text-align: center;
+    line-height: 1.1;
+    color: var(--gold2);
+    text-shadow: 0 0 40px rgba(255,207,0,0.3);
+    margin-bottom: 8px;
+    min-height: 70px;
+    transition: all 0.2s;
+  }
+  .word-category {
+    text-align: center;
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+  }
+  .speak-btn {
+    width: 100%;
+    padding: 18px;
+    border-radius: 16px;
+    border: none;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    color: #000;
+    font-family: 'Fredoka One', cursive;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 20px rgba(245,166,35,0.35);
+    margin-bottom: 14px;
+  }
+  .speak-btn:active { transform: scale(0.97); box-shadow: none; }
+  .next-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid var(--card-border);
+    background: rgba(255,255,255,0.05);
+    color: var(--white);
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.15s;
+  }
+  .next-btn:active { transform: scale(0.97); background: rgba(255,255,255,0.1); }
+
+  .category-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+    justify-content: center;
+  }
+  .cat-pill {
+    padding: 6px 14px;
+    border-radius: 99px;
+    border: 1px solid var(--card-border);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: transparent;
+    color: rgba(255,255,255,0.6);
+  }
+  .cat-pill.active {
+    background: var(--gold);
+    color: #000;
+    border-color: var(--gold);
+  }
+
+  /* ── GAME 2: READ IT ── */
+  #game2 { justify-content: flex-start; }
+  .sentence-display {
+    font-size: 28px;
+    font-weight: 800;
+    text-align: center;
+    line-height: 1.4;
+    color: var(--white);
+    margin-bottom: 24px;
+    min-height: 80px;
+  }
+  .sentence-display em {
+    color: var(--gold2);
+    font-style: normal;
+  }
+  .read-speak-btn {
+    width: 100%;
+    padding: 18px;
+    border-radius: 16px;
+    border: none;
+    background: linear-gradient(135deg, var(--green), #00e5a8);
+    color: #000;
+    font-family: 'Fredoka One', cursive;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 20px rgba(0,200,150,0.35);
+    transition: transform 0.15s;
+  }
+  .read-speak-btn:active { transform: scale(0.97); }
+
+  .sentence-nav {
+    display: flex;
+    gap: 10px;
+  }
+  .nav-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid var(--card-border);
+    background: rgba(255,255,255,0.05);
+    color: var(--white);
+    font-family: 'Fredoka One', cursive;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .nav-btn:active { background: rgba(255,255,255,0.1); transform: scale(0.97); }
+
+  .custom-sentence-area {
+    margin-top: 16px;
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 14px;
+  }
+  .custom-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 8px;
+  }
+  .custom-input {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: var(--white);
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    outline: none;
+    margin-bottom: 8px;
+  }
+  .custom-input:focus { border-color: var(--green); }
+  .add-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    background: var(--green);
+    color: #000;
+    font-family: 'Fredoka One', cursive;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  /* ── GAME 3: FILL IT ── */
+  #game3 { justify-content: flex-start; }
+  .fill-sentence {
+    font-size: 26px;
+    font-weight: 800;
+    text-align: center;
+    line-height: 1.5;
+    min-height: 80px;
+    margin-bottom: 20px;
+    word-spacing: 4px;
+  }
+  .blank-slot {
+    display: inline-block;
+    min-width: 40px;
+    border-bottom: 3px solid var(--purple);
+    color: var(--purple);
+    font-weight: 800;
+    padding: 0 4px;
+    margin: 0 2px;
+  }
+
+  .letter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .letter-btn {
+    width: 54px; height: 54px;
+    border-radius: 14px;
+    border: 2px solid var(--card-border);
+    background: rgba(255,255,255,0.07);
+    color: var(--white);
+    font-family: 'Fredoka One', cursive;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .letter-btn:active { transform: scale(0.9); background: var(--purple); border-color: var(--purple); }
+  .letter-btn.used { opacity: 0.3; pointer-events: none; }
+
+  .fill-feedback {
+    text-align: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 22px;
+    min-height: 32px;
+    margin-bottom: 14px;
+    transition: all 0.3s;
+  }
+  .fill-feedback.correct { color: var(--green); }
+  .fill-feedback.wrong { color: var(--red); }
+
+  .fill-actions {
+    display: flex;
+    gap: 10px;
+  }
+  .hint-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid var(--purple);
+    background: rgba(168,85,247,0.1);
+    color: var(--purple);
+    font-family: 'Fredoka One', cursive;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .hint-btn:active { background: rgba(168,85,247,0.25); }
+  .skip-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid var(--card-border);
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka One', cursive;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  /* ── GAME 4: WORD MATCH ── */
+  #game4 { justify-content: flex-start; }
+  .match-prompt {
+    text-align: center;
+    margin-bottom: 6px;
+  }
+  .match-question {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 10px;
+  }
+  .match-emoji { font-size: 72px; margin-bottom: 8px; line-height: 1; }
+  .match-hint {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 20px;
+  }
+
+  .match-choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    max-width: 420px;
+    margin-bottom: 16px;
+  }
+  .choice-btn {
+    padding: 18px 10px;
+    border-radius: 16px;
+    border: 2px solid var(--card-border);
+    background: rgba(255,255,255,0.06);
+    color: var(--white);
+    font-family: 'Fredoka One', cursive;
+    font-size: 20px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .choice-btn:active { transform: scale(0.95); }
+  .choice-btn.correct-choice { background: rgba(0,200,150,0.2); border-color: var(--green); color: var(--green); }
+  .choice-btn.wrong-choice { background: rgba(255,82,82,0.2); border-color: var(--red); color: var(--red); }
+
+  .match-feedback {
+    text-align: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 22px;
+    min-height: 32px;
+    transition: all 0.3s;
+  }
+  .match-feedback.correct { color: var(--green); }
+  .match-feedback.wrong { color: var(--red); }
+
+  /* ── RESULT POP ── */
+  .result-pop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .result-pop.show { opacity: 1; pointer-events: all; }
+  .result-card {
+    background: var(--deep);
+    border: 1px solid var(--card-border);
+    border-radius: 28px;
+    padding: 36px 28px;
+    text-align: center;
+    max-width: 320px;
+    width: 90%;
+    transform: scale(0.8);
+    transition: transform 0.3s;
+  }
+  .result-pop.show .result-card { transform: scale(1); }
+  .result-big { font-size: 64px; margin-bottom: 12px; }
+  .result-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 30px;
+    color: var(--gold2);
+    margin-bottom: 8px;
+  }
+  .result-xp {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+  .result-close {
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+    border: none;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    color: #000;
+    font-family: 'Fredoka One', cursive;
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  /* ── ANIMS ── */
+  @keyframes floatIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pop { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+  .pop { animation: pop 0.3s ease; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body>
+
+<!-- Stars -->
+<div class="stars" id="stars"></div>
+
+<div id="app">
+
+  <!-- ══ HOME ══ -->
+  <div class="screen active" id="home">
+    <div class="logo-area">
+      <div class="logo-icon">⚔️</div>
+      <div class="logo-title">English Quest</div>
+      <div class="logo-sub">Level up your English</div>
+    </div>
+
+    <div class="xp-bar-wrap">
+      <div class="xp-label">
+        <span>⭐ Explorer</span>
+        <span id="xp-count">0 / 100 XP</span>
+      </div>
+      <div class="xp-track"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="menu-grid">
+      <div class="menu-card c1" onclick="openGame(1)">
+        <div class="menu-badge badge-gold">🔊 Audio</div>
+        <div class="menu-emoji">🎯</div>
+        <div class="menu-name">Word Blaster</div>
+      </div>
+      <div class="menu-card c2" onclick="openGame(2)">
+        <div class="menu-badge badge-green">📖 Read</div>
+        <div class="menu-emoji">📜</div>
+        <div class="menu-name">Read It!</div>
+      </div>
+      <div class="menu-card c3" onclick="openGame(3)">
+        <div class="menu-badge badge-purple">✏️ Type</div>
+        <div class="menu-emoji">🧩</div>
+        <div class="menu-name">Fill the Gap</div>
+      </div>
+      <div class="menu-card c4" onclick="openGame(4)">
+        <div class="menu-badge badge-blue">🎮 Match</div>
+        <div class="menu-emoji">🗺️</div>
+        <div class="menu-name">Word Match</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ GAME 1: WORD BLASTER ══ -->
+  <div class="screen" id="game1">
+    <div class="game-header">
+      <div class="back-btn" onclick="goHome()">←</div>
+      <div class="game-title-wrap">
+        <div class="game-title">🎯 Word Blaster</div>
+        <div class="game-streak" id="g1-streak">Streak: 0 🔥</div>
+      </div>
+      <div class="score-pill" id="g1-score">0 XP</div>
+    </div>
+
+    <div class="game-card">
+      <div class="word-display" id="word-display">—</div>
+      <div class="word-category" id="word-cat">Choose a category below</div>
+      <button class="speak-btn" onclick="speakWord()">🔊 Read it out loud!</button>
+      <button class="next-btn" onclick="nextWord()">Next word →</button>
+      <div class="category-pills">
+        <div class="cat-pill active" onclick="setCategory('all', this)">All</div>
+        <div class="cat-pill" onclick="setCategory('animals', this)">Animals</div>
+        <div class="cat-pill" onclick="setCategory('colors', this)">Colors</div>
+        <div class="cat-pill" onclick="setCategory('food', this)">Food</div>
+        <div class="cat-pill" onclick="setCategory('actions', this)">Actions</div>
+        <div class="cat-pill" onclick="setCategory('adjectives', this)">Feelings</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ GAME 2: READ IT ══ -->
+  <div class="screen" id="game2">
+    <div class="game-header">
+      <div class="back-btn" onclick="goHome()">←</div>
+      <div class="game-title-wrap">
+        <div class="game-title">📜 Read It!</div>
+        <div class="game-streak" id="g2-streak">Read aloud for XP</div>
+      </div>
+      <div class="score-pill" id="g2-score">0 XP</div>
+    </div>
+
+    <div class="game-card">
+      <div class="sentence-display" id="sentence-display">Press "Read It" to start</div>
+      <button class="read-speak-btn" onclick="speakSentence()">🔊 Read It!</button>
+      <div class="sentence-nav">
+        <button class="nav-btn" onclick="prevSentence()">← Prev</button>
+        <button class="nav-btn" onclick="nextSentence()">Next →</button>
+      </div>
+    </div>
+
+    <div class="custom-sentence-area">
+      <div class="custom-label">✏️ Add your own sentence</div>
+      <input class="custom-input" id="custom-input" type="text" placeholder="Type a sentence here...">
+      <button class="add-btn" onclick="addCustomSentence()">+ Add Sentence</button>
+    </div>
+  </div>
+
+  <!-- ══ GAME 3: FILL THE GAP ══ -->
+  <div class="screen" id="game3">
+    <div class="game-header">
+      <div class="back-btn" onclick="goHome()">←</div>
+      <div class="game-title-wrap">
+        <div class="game-title">🧩 Fill the Gap</div>
+        <div class="game-streak" id="g3-streak">Streak: 0 🔥</div>
+      </div>
+      <div class="score-pill" id="g3-score">0 XP</div>
+    </div>
+
+    <div class="game-card">
+      <div class="fill-sentence" id="fill-sentence">Loading...</div>
+      <div class="letter-options" id="letter-options"></div>
+      <div class="fill-feedback" id="fill-feedback"></div>
+      <div class="fill-actions">
+        <button class="hint-btn" onclick="giveHint()">💡 Hint</button>
+        <button class="skip-btn" onclick="nextFill()">Skip →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ GAME 4: WORD MATCH ══ -->
+  <div class="screen" id="game4">
+    <div class="game-header">
+      <div class="back-btn" onclick="goHome()">←</div>
+      <div class="game-title-wrap">
+        <div class="game-title">🗺️ Word Match</div>
+        <div class="game-streak" id="g4-streak">Streak: 0 🔥</div>
+      </div>
+      <div class="score-pill" id="g4-score">0 XP</div>
+    </div>
+
+    <div class="game-card" style="text-align:center;">
+      <div class="match-question">What does this mean?</div>
+      <div class="match-emoji" id="match-emoji">🐘</div>
+      <div class="match-hint" id="match-hint">Tap the right word!</div>
+    </div>
+
+    <div class="match-choices" id="match-choices"></div>
+    <div class="match-feedback" id="match-feedback"></div>
+  </div>
+
+</div>
+
+<!-- Result Pop -->
+<div class="result-pop" id="result-pop">
+  <div class="result-card">
+    <div class="result-big" id="result-emoji">🏆</div>
+    <div class="result-title" id="result-title">Amazing!</div>
+    <div class="result-xp" id="result-xp">+10 XP earned!</div>
+    <button class="result-close" onclick="closeResult()">Keep Going! ⚔️</button>
+  </div>
+</div>
+
+<script>
+// ── STARS ──
+(function() {
+  const c = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 3 + 1;
+    s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${(Math.random()*3+2).toFixed(1)}s;animation-delay:${(Math.random()*3).toFixed(1)}s`;
+    c.appendChild(s);
+  }
+})();
+
+// ── STATE ──
+let xp = parseInt(localStorage.getItem('eq_xp') || '0');
+let streaks = { g1: 0, g2: 0, g3: 0, g4: 0 };
+let scores = { g1: 0, g2: 0, g3: 0, g4: 0 };
+
+function saveXP() { localStorage.setItem('eq_xp', xp); }
+function addXP(amount) {
+  xp += amount;
+  saveXP();
+  updateXPBar();
+}
+function updateXPBar() {
+  const lvlXP = xp % 100;
+  document.getElementById('xp-fill').style.width = lvlXP + '%';
+  document.getElementById('xp-count').textContent = `${xp} XP total`;
+}
+updateXPBar();
+
+// ── SCREENS ──
+function openGame(n) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('game' + n).classList.add('active');
+  if (n === 1) { nextWord(); }
+  if (n === 2) { loadSentence(); }
+  if (n === 3) { loadFill(); }
+  if (n === 4) { loadMatch(); }
+}
+function goHome() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('home').classList.add('active');
+}
+
+// ── SPEECH ──
+function speak(text, rate = 0.85) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US';
+  u.rate = rate;
+  u.pitch = 1;
+  window.speechSynthesis.speak(u);
+}
+
+// ── GAME 1: WORD BLASTER ──
+const wordBank = {
+  animals: ['elephant','giraffe','dolphin','penguin','tiger','rabbit','parrot','cheetah','turtle','shark'],
+  colors: ['red','blue','yellow','green','purple','orange','pink','black','white','silver'],
+  food: ['apple','banana','sandwich','chocolate','pizza','mango','strawberry','carrot','bread','cookie'],
+  actions: ['running','jumping','laughing','sleeping','reading','singing','dancing','cooking','climbing','swimming'],
+  adjectives: ['happy','angry','excited','scared','funny','brave','quiet','silly','strong','gentle']
+};
+
+let currentCategory = 'all';
+let currentWord = '';
+let g1Streak = 0;
+
+function getAllWords() {
+  return Object.values(wordBank).flat();
+}
+function setCategory(cat, el) {
+  currentCategory = cat;
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  nextWord();
+}
+function nextWord() {
+  const pool = currentCategory === 'all' ? getAllWords() : wordBank[currentCategory];
+  const word = pool[Math.floor(Math.random() * pool.length)];
+  currentWord = word;
+  const el = document.getElementById('word-display');
+  el.classList.remove('pop');
+  void el.offsetWidth;
+  el.classList.add('pop');
+  el.textContent = word.charAt(0).toUpperCase() + word.slice(1);
+  
+  // Find category
+  let cat = 'Mixed';
+  for (const [k, v] of Object.entries(wordBank)) {
+    if (v.includes(word)) { cat = k.charAt(0).toUpperCase() + k.slice(1); break; }
+  }
+  document.getElementById('word-cat').textContent = cat;
+  speak(word);
+  awardXP('g1', 2);
+}
+function speakWord() {
+  speak(currentWord);
+  awardXP('g1', 1);
+}
+
+// ── GAME 2: READ IT ──
+let sentences = [
+  "The brave knight rides through the dark forest.",
+  "Every day is a new adventure waiting for you.",
+  "The dragon is sleeping on a pile of gold.",
+  "She found a secret map hidden under the stairs.",
+  "The stars shine brightest when the sky is clear.",
+  "He learned three new words before breakfast.",
+  "The wizard cast a spell and the room lit up.",
+  "Practice every day and you will get better.",
+  "The treasure chest was buried deep underground.",
+  "Reading is the key that unlocks every door."
+];
+let sentenceIndex = 0;
+
+function loadSentence() { showSentence(); }
+function showSentence() {
+  const s = sentences[sentenceIndex];
+  document.getElementById('sentence-display').innerHTML = s;
+}
+function nextSentence() {
+  sentenceIndex = (sentenceIndex + 1) % sentences.length;
+  showSentence();
+}
+function prevSentence() {
+  sentenceIndex = (sentenceIndex - 1 + sentences.length) % sentences.length;
+  showSentence();
+}
+function speakSentence() {
+  speak(sentences[sentenceIndex], 0.8);
+  awardXP('g2', 5);
+  scores.g2 += 5;
+  document.getElementById('g2-score').textContent = scores.g2 + ' XP';
+}
+function addCustomSentence() {
+  const input = document.getElementById('custom-input');
+  const val = input.value.trim();
+  if (!val) return;
+  sentences.push(val);
+  sentenceIndex = sentences.length - 1;
+  showSentence();
+  input.value = '';
+}
+
+// ── GAME 3: FILL THE GAP ──
+const fillData = [
+  { sentence: 'The cat sat on the m__t.', answer: 'mat', blank: 'ma_', display: 'The cat sat on the', after: 't.' },
+  { sentence: 'She likes to r__d books.', answer: 'read', blank: 'r__d', display: 'She likes to', after: 'books.' },
+  { sentence: 'The dog ran f__t.', answer: 'fast', blank: 'f__t', display: 'The dog ran', after: '.' },
+  { sentence: 'He drank a glass of w__er.', answer: 'water', blank: 'w__er', display: 'He drank a glass of', after: '.' },
+  { sentence: 'The sun is v__y bright today.', answer: 'very', blank: 'v__y', display: 'The sun is', after: 'bright today.' },
+  { sentence: 'She found a b__g spider!', answer: 'big', blank: 'b_g', display: 'She found a', after: 'spider!' },
+  { sentence: 'The bird can f__y high.', answer: 'fly', blank: 'f__y', display: 'The bird can', after: 'high.' },
+  { sentence: 'I like to e__t pizza.', answer: 'eat', blank: 'e__t', display: 'I like to', after: 'pizza.' },
+  { sentence: 'He is my b__st friend.', answer: 'best', blank: 'b__t', display: 'He is my', after: 'friend.' },
+  { sentence: 'The night sky is d__k.', answer: 'dark', blank: 'd__k', display: 'The night sky is', after: '.' },
+];
+
+let currentFill = null;
+let filledLetters = [];
+let g3Streak = 0;
+
+function loadFill() {
+  currentFill = fillData[Math.floor(Math.random() * fillData.length)];
+  filledLetters = [];
+  renderFill();
+}
+
+function renderFill() {
+  const { answer } = currentFill;
+  // Build sentence with blank
+  let blanks = answer.split('').map(() => '_');
+  let displaySentence = currentFill.sentence.replace(/[a-z]__[a-z]|[a-z]_[a-z]|[a-z]__[a-z][a-z]/g, (match) => {
+    return `<span class="blank-slot">${filledLetters.join('')}${blanks.slice(filledLetters.length).join('')}</span>`;
+  });
+  document.getElementById('fill-sentence').innerHTML = currentFill.sentence.replace(currentFill.blank, `<span class="blank-slot">${filledLetters.join('') || answer.split('').map((l, i) => filledLetters[i] || '_').join('')}</span>`);
+  
+  // Generate letter options (answer letters + distractors)
+  const letters = [...new Set(answer.split(''))];
+  const distractors = 'bcdfghjklmnpqrstvwxyz'.split('').filter(l => !letters.includes(l));
+  const extra = distractors.sort(() => Math.random() - 0.5).slice(0, Math.max(4, 8 - letters.length));
+  const allLetters = [...letters, ...extra].sort(() => Math.random() - 0.5);
+
+  const container = document.getElementById('letter-options');
+  container.innerHTML = '';
+  allLetters.forEach(letter => {
+    const btn = document.createElement('button');
+    btn.className = 'letter-btn';
+    btn.textContent = letter.toUpperCase();
+    btn.onclick = () => tapLetter(letter, btn);
+    container.appendChild(btn);
+  });
+  document.getElementById('fill-feedback').textContent = '';
+  document.getElementById('fill-feedback').className = 'fill-feedback';
+}
+
+function tapLetter(letter, btn) {
+  const { answer } = currentFill;
+  const expected = answer[filledLetters.length];
+  if (letter === expected) {
+    filledLetters.push(letter);
+    btn.classList.add('used');
+    // Update display
+    const blankEl = document.querySelector('.blank-slot');
+    if (blankEl) {
+      blankEl.textContent = filledLetters.join('') + answer.slice(filledLetters.length).split('').map(() => '_').join('');
+    }
+    if (filledLetters.length === answer.length) {
+      // Correct!
+      document.getElementById('fill-feedback').textContent = '✅ Correct! Well done!';
+      document.getElementById('fill-feedback').className = 'fill-feedback correct';
+      g3Streak++;
+      document.getElementById('g3-streak').textContent = `Streak: ${g3Streak} 🔥`;
+      awardXP('g3', 10);
+      scores.g3 += 10;
+      document.getElementById('g3-score').textContent = scores.g3 + ' XP';
+      setTimeout(nextFill, 1200);
+    } else {
+      document.getElementById('fill-feedback').textContent = '👍 Keep going!';
+      document.getElementById('fill-feedback').className = 'fill-feedback correct';
+    }
+  } else {
+    document.getElementById('fill-feedback').textContent = '❌ Try another letter!';
+    document.getElementById('fill-feedback').className = 'fill-feedback wrong';
+    g3Streak = 0;
+    document.getElementById('g3-streak').textContent = `Streak: 0 🔥`;
+    btn.classList.add('used');
+    setTimeout(() => {
+      btn.classList.remove('used');
+      document.getElementById('fill-feedback').textContent = '';
+    }, 700);
+  }
+}
+
+function giveHint() {
+  const { answer } = currentFill;
+  if (filledLetters.length < answer.length) {
+    const letter = answer[filledLetters.length];
+    document.getElementById('fill-feedback').textContent = `💡 Next letter: "${letter.toUpperCase()}"`;
+    document.getElementById('fill-feedback').className = 'fill-feedback';
+  }
+}
+function nextFill() { loadFill(); }
+
+// ── GAME 4: WORD MATCH ──
+const matchData = [
+  { emoji: '🐘', word: 'elephant', wrong: ['banana','mountain','cloud'] },
+  { emoji: '🌈', word: 'rainbow', wrong: ['umbrella','tiger','sock'] },
+  { emoji: '🍎', word: 'apple', wrong: ['penguin','castle','river'] },
+  { emoji: '🚀', word: 'rocket', wrong: ['pillow','frog','cake'] },
+  { emoji: '🦁', word: 'lion', wrong: ['paper','moon','bottle'] },
+  { emoji: '🌊', word: 'ocean', wrong: ['blanket','pencil','hat'] },
+  { emoji: '🏔️', word: 'mountain', wrong: ['elephant','apple','star'] },
+  { emoji: '⚡', word: 'lightning', wrong: ['cookie','desk','flower'] },
+  { emoji: '🦋', word: 'butterfly', wrong: ['stone','piano','sock'] },
+  { emoji: '🐬', word: 'dolphin', wrong: ['candle','river','jacket'] },
+  { emoji: '🌺', word: 'flower', wrong: ['robot','bridge','drum'] },
+  { emoji: '🎸', word: 'guitar', wrong: ['spider','bread','window'] },
+  { emoji: '🏆', word: 'trophy', wrong: ['carrot','pillow','kite'] },
+  { emoji: '🌙', word: 'moon', wrong: ['table','ladder','shoe'] },
+  { emoji: '🦊', word: 'fox', wrong: ['bottle','clock','leaf'] },
+];
+
+let currentMatch = null;
+let g4Streak = 0;
+let matchLocked = false;
+
+function loadMatch() {
+  matchLocked = false;
+  currentMatch = matchData[Math.floor(Math.random() * matchData.length)];
+  document.getElementById('match-emoji').textContent = currentMatch.emoji;
+  document.getElementById('match-feedback').textContent = '';
+  document.getElementById('match-feedback').className = 'match-feedback';
+
+  // Shuffle choices
+  const choices = [currentMatch.word, ...currentMatch.wrong.slice(0,3)].sort(() => Math.random() - 0.5);
+  const container = document.getElementById('match-choices');
+  container.innerHTML = '';
+  choices.forEach(word => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = word.charAt(0).toUpperCase() + word.slice(1);
+    btn.onclick = () => tapChoice(word, btn);
+    container.appendChild(btn);
+  });
+}
+
+function tapChoice(word, btn) {
+  if (matchLocked) return;
+  matchLocked = true;
+  const correct = word === currentMatch.word;
+  if (correct) {
+    btn.classList.add('correct-choice');
+    document.getElementById('match-feedback').textContent = '🎉 That\'s right!';
+    document.getElementById('match-feedback').className = 'match-feedback correct';
+    g4Streak++;
+    document.getElementById('g4-streak').textContent = `Streak: ${g4Streak} 🔥`;
+    awardXP('g4', 8);
+    scores.g4 += 8;
+    document.getElementById('g4-score').textContent = scores.g4 + ' XP';
+    speak(currentMatch.word);
+    setTimeout(loadMatch, 1400);
+  } else {
+    btn.classList.add('wrong-choice');
+    // Highlight correct
+    document.querySelectorAll('.choice-btn').forEach(b => {
+      if (b.textContent.toLowerCase() === currentMatch.word) b.classList.add('correct-choice');
+    });
+    document.getElementById('match-feedback').textContent = '❌ Not quite! Try again!';
+    document.getElementById('match-feedback').className = 'match-feedback wrong';
+    g4Streak = 0;
+    document.getElementById('g4-streak').textContent = `Streak: 0 🔥`;
+    speak(currentMatch.word);
+    setTimeout(loadMatch, 1800);
+  }
+}
+
+// ── XP & REWARDS ──
+function awardXP(game, amount) {
+  xp += amount;
+  saveXP();
+  updateXPBar();
+  // Milestone pops
+  const milestones = [10, 25, 50, 100, 150, 200];
+  if (milestones.includes(xp)) {
+    showResult('⭐', 'Level Up!', `You reached ${xp} XP!`);
+  }
+}
+
+function showResult(emoji, title, sub) {
+  document.getElementById('result-emoji').textContent = emoji;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-xp').textContent = sub;
+  document.getElementById('result-pop').classList.add('show');
+}
+function closeResult() {
+  document.getElementById('result-pop').classList.remove('show');
+}
+</script>
+</body>
+</html>
